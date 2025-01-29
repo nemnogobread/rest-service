@@ -1,17 +1,34 @@
 package com.example.rest_service.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
+@RequiredArgsConstructor
 public class User {
-    private final int id;
+    private final Integer id;
     private String firstName;
     private String lastName;
-    private int age;
+    private Integer age;
 
-    public User(int id) {
+    public User(int id, String firstName, String lastName, int age) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+    }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                '}';
     }
 }
