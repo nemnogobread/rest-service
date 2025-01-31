@@ -1,6 +1,5 @@
 package com.example.rest_service.entity;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -20,7 +19,6 @@ public class User {
         this.lastName = lastName;
         this.age = age;
     }
-
 
     @Override
     public String toString() {
