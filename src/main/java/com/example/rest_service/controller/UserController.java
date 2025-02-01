@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/user-list")
-    public List<String> getUserList(){
+    public List<User> getUserList(){
         return userService.getUserList();
     }
 }

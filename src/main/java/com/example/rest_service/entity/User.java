@@ -1,24 +1,27 @@
 package com.example.rest_service.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+@Table(name = "users")
+@Entity
 @Setter
 @Getter
 @RequiredArgsConstructor
 public class User {
-    private final Integer id;
-    private String firstName;
-    private String lastName;
-    private Integer age;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public User(int id, String firstName, String lastName, int age) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-    }
+    @Column(name = "firstname")
+    private String firstName;
+    @Column(name = "lastname")
+    private String lastName;
+    @Column(name = "currentage")
+    private Integer age;
 
     @Override
     public String toString() {

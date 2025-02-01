@@ -1,6 +1,8 @@
 package com.example.rest_service.service;
 
 import com.example.rest_service.entity.User;
+import com.example.rest_service.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,13 +10,14 @@ import java.util.List;
 @Service
 public class UserService {
 
-    public List<String> getUserList(){
-        return List.of((
-                new User(
-                        2,
-                        "Igor",
-                        "Miloslavov",
-                        27)
-        ).toString());
+    UserRepository userRepository;
+
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public List<User> getUserList(){
+        return userRepository.findAll();
     }
 }
