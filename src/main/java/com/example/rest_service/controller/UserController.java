@@ -40,7 +40,13 @@ public class UserController {
 
     @PostMapping("/api/v1/add-user")
     public User createUser(@RequestBody User user){
-        logger.info(user.toString());
-        return userService.addUser(user);
+        //logger.info(user.toString());
+        try {
+            return userService.addUser(user);
+        }
+        catch (Exception e){
+            logger.error(e.toString());
+            return null;
+        }
     }
 }

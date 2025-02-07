@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -27,6 +28,13 @@ public class UserService {
     }
 
     public User addUser(User user){
-        return userRepository.save(user);
+        Optional<User> optionalUser = userRepository.findByLastName(user.getLastName());
+        if (optionalUser.isEmpty()){
+            //logger.info(optionalUser.get().toString());
+            return userRepository.save(user);
+        }
+        else {
+            throw new IllegalArgumentException("haha user with this lastname is already exists");
+        }
     }
 }
