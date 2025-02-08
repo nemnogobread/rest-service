@@ -7,10 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,6 +40,27 @@ public class UserController {
         //logger.info(user.toString());
         try {
             return userService.addUser(user);
+        }
+        catch (Exception e){
+            logger.error(e.toString());
+            return null;
+        }
+    }
+
+    @DeleteMapping("/api/v1/delete-user")
+    public void deleteUser(@RequestBody User user){
+        try {
+            userService.deleteUser(user);
+        }
+        catch (Exception e){
+            logger.error(e.toString());
+        }
+    }
+
+    @PostMapping("/api/v1/update-user")
+    public User updateUser(@RequestBody User user){
+        try {
+            return userService.upateUser(user);
         }
         catch (Exception e){
             logger.error(e.toString());
