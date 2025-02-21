@@ -12,8 +12,8 @@ import java.io.Serializable;
 
 @Table(name = "users")
 @Entity
-//@Setter
-//@Getter
+@Setter
+@Getter
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable{
@@ -38,40 +38,10 @@ public class User implements Serializable{
                 '}';
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
     public static String serialize(User user) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(user);
     }
 }
+
+

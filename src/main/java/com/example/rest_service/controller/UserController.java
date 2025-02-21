@@ -31,6 +31,7 @@ public class UserController {
         try {
             return userMapper.convertUsersToJson(userList);
         } catch (JsonProcessingException e) {
+            logger.error(e.toString());
             return null;
         }
     }
