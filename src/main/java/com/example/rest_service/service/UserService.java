@@ -61,7 +61,7 @@ public class UserService {
                 existingUser.setAge(user.getAge());
             }
 
-            logger.info(existingUser.toString());
+            //logger.info(existingUser.toString());
             return userRepository.save(existingUser);
         }
         else {
