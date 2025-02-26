@@ -5,6 +5,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 FROM openjdk:21
+RUN apk update && apt-get install -y shadow
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 WORKDIR /app
