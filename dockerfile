@@ -5,6 +5,8 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 FROM openjdk:21
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
 WORKDIR /app
 COPY --from=build /app/target/rest-service-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8090
