@@ -25,8 +25,8 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @GetMapping("/api/v1/user-list")
-    public String getUserList(){
+    @GetMapping("/")
+    public String getUserData(){
         List<User> userList = userService.getUserList();
         try {
             return userMapper.convertUsersToJson(userList);
