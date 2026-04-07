@@ -1,0 +1,56 @@
+services:
+  spring-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: myapp
+    ports:
+      - "${APP_PORT:-8090}:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: ${SPRING_APPLICATION_NAME:-rest-service}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/postgres}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-validate}
+      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL:-false}
+      SPRING_FLYWAY_ENABLED: ${SPRING_FLYWAY_ENABLED:-true}
+      SERVER_PORT: ${SERVER_PORT:-8090}
+      SPRING_WEB_RESOURCES_STATIC_LOCATIONS: ${SPRING_WEB_RESOURCES_STATIC_LOCATIONS:-file:/app/static/}
+    volumes:
+      - app_static:/app/static
+    restart: unless-stopped
+    networks:
+      - appnet
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: mypostgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+networks:
+  appnet:
+    name: appnet
+    driver: bridge
+
+volumes:
+  pgdata:
+  app_static:

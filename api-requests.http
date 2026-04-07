@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:8090
+
+GET {{baseUrl}}/
+
+POST {{baseUrl}}/api/v1/add-user
+Content-Type: application/json
+
+{
+  "firstName": "Alice",
+  "lastName": "TestUser",
+  "age": 30
+}
+
+POST {{baseUrl}}/api/v1/add-user
+Content-Type: application/json
+
+{
+  "firstName": "Bob",
+  "lastName": "Another",
+  "age": 25
+}
+
+POST {{baseUrl}}/api/v1/update-user
+Content-Type: application/json
+
+{
+  "lastName": "TestUser",
+  "firstName": "Alicia",
+  "age": 31
+}
+
+DELETE {{baseUrl}}/api/v1/delete-user
+Content-Type: application/json
+
+{
+  "lastName": "Another"
+}
+
+### Список после изменений
+GET {{baseUrl}}/
