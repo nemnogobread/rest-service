@@ -6,14 +6,16 @@ RUN --mount=type=cache,target=/root/.m2 \
 COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 \
     mvn -q -e -B clean package -DskipTests \
-    && rm -rf /var/cache/apk/* /tmp/*
+    && rm -rf /var/cache/apk/* /tmp/* \
+    && apk cache clean 2>/dev/null || true
 
 FROM eclipse-temurin:21-jre-alpine
 RUN addgroup -g 1000 -S spring \
     && adduser -u 1000 -S spring -G spring \
     && mkdir -p /app/static \
     && chown -R spring:spring /app \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/cache/apk/* /tmp/* \
+    && apk cache clean 2>/dev/null || true
 
 WORKDIR /app
 COPY --from=build --chown=spring:spring /app/target/rest-service-0.0.1-SNAPSHOT.jar app.jar
