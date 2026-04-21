@@ -1,8 +1,29 @@
 services:
+  system-base:
+    profiles:
+      - build
+    build:
+      context: .
+      dockerfile: Dockerfile.system
+    image: rest-service-system:latest
+
+  app-build:
+    profiles:
+      - build
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+      args:
+        SYSTEM_IMAGE: rest-service-system:latest
+    image: rest-service-build:latest
+
   spring-app:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
+      args:
+        BUILD_IMAGE: rest-service-build:latest
+    image: rest-service:latest
     container_name: myapp
     ports:
       - "${APP_PORT:-8090}:8090"

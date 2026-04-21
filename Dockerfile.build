@@ -1,0 +1,10 @@
+ARG SYSTEM_IMAGE=rest-service-system:latest
+FROM ${SYSTEM_IMAGE}
+
+WORKDIR /app
+COPY pom.xml .
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -q -e -B dependency:go-offline
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -q -e -B clean package -DskipTests
