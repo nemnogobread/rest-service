@@ -1,0 +1,93 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  GIT_DEPTH: "20"
+
+default:
+  image: maven:3.9-eclipse-temurin-21
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  script:
+    - mvn -B -DskipTests package
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - target/*.jar
+
+test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  services:
+    - name: docker:27-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    TESTCONTAINERS_HOST_OVERRIDE: "docker"
+  before_script:
+    - apt-get update -qq
+    - apt-get install -yqq docker.io
+    - rm -rf /var/lib/apt/lists/*
+    - docker info
+  script:
+    - mvn -B test
+  needs:
+    - build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+deploy:
+  stage: deploy
+  image: alpine:3.21
+  needs:
+    - build
+    - test
+  before_script:
+    - apk add --no-cache openssh-client rsync bash
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - eval "$(ssh-agent -s)"
+    - |
+      if [ -z "${SSH_PRIVATE_KEY:-}" ]; then
+        echo "ERROR: задайте переменную SSH_PRIVATE_KEY в GitLab CI/CD Variables"
+        exit 1
+      fi
+    - printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - ssh-keyscan -H "${DEPLOY_SERVER}" >> ~/.ssh/known_hosts 2>/dev/null || true
+  script:
+    - |
+      set -euo pipefail
+      if [ -z "${DEPLOY_SERVER:-}" ] || [ -z "${DEPLOY_USER:-}" ] || [ -z "${DEPLOY_PATH:-}" ]; then
+        echo "ERROR: задайте DEPLOY_SERVER, DEPLOY_USER, DEPLOY_PATH"
+        exit 1
+      fi
+    - ssh -o StrictHostKeyChecking=accept-new "${DEPLOY_USER}@${DEPLOY_SERVER}" "mkdir -p '${DEPLOY_PATH}'"
+    - |
+      rsync -az --delete \
+        --exclude='.git/' \
+        --exclude='target/' \
+        --exclude='.m2/' \
+        --exclude='.idea/' \
+        --exclude='*.iml' \
+        ./ "${DEPLOY_USER}@${DEPLOY_SERVER}:${DEPLOY_PATH}/"
+    - ssh -o StrictHostKeyChecking=accept-new "${DEPLOY_USER}@${DEPLOY_SERVER}" "chmod +x '${DEPLOY_PATH}/scripts/ci-remote-deploy.sh'"
+    - |
+      ssh -o StrictHostKeyChecking=accept-new "${DEPLOY_USER}@${DEPLOY_SERVER}" \
+        "export DEPLOY_PATH='${DEPLOY_PATH}'; export POSTGRES_PASSWORD='${POSTGRES_PASSWORD:-}'; exec '${DEPLOY_PATH}/scripts/ci-remote-deploy.sh'"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $DEPLOY_SERVER && $DEPLOY_USER && $DEPLOY_PATH'
+      when: on_success
+    - if: '$DEPLOY_SERVER && $DEPLOY_USER && $DEPLOY_PATH'
+      when: manual
+    - when: never
